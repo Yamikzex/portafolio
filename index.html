@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+
+    <title>Portafolio.exe</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Press Start 2P', cursive;
+            background: #1a1a2e;
+            color: #c5c6c7;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Scanlines Effect */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.15),
+                rgba(0, 0, 0, 0.15) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        /* CRT Effect */
+        .crt-effect {
+            animation: flicker 0.15s infinite;
+        }
+
+        @keyframes flicker {
+            0% { opacity: 0.98; }
+            50% { opacity: 1; }
+            100% { opacity: 0.98; }
+        }
+
+        /* Boot Screen */
+        #bootScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            transition: opacity 0.5s;
+        }
+
+        #bootScreen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .boot-logo {
+            font-size: 4rem;
+            color: #66fcf1;
+            animation: pulse 1s infinite, glitch 3s infinite;
+            text-shadow: 2px 2px 10px #66fcf1;
+        }
+
+        .boot-text {
+            font-size: 0.8rem;
+            margin-top: 2rem;
+            color: #c5c6c7;
+        }
+
+        .loading-bar {
+            width: 300px;
+            height: 20px;
+            border: 2px solid #66fcf1;
+            margin-top: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .loading-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #45a29e, #66fcf1);
+            width: 0%;
+            animation: load 2s forwards;
+            box-shadow: 0 0 10px #66fcf1;
+        }
+
+        @keyframes load {
+            to { width: 100%; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes glitch {
+            0%, 90%, 100% { transform: translate(0); }
+            92% { transform: translate(-2px, 2px); }
+            94% { transform: translate(2px, -2px); }
+            96% { transform: translate(-2px, -2px); }
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            padding: 3rem 1rem;
+            border-bottom: 3px solid #45a29e;
+            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+            position: relative;
+        }
+
+        header::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, #45a29e, #66fcf1);
+            box-shadow: 0 0 10px #66fcf1;
+            animation: glow 2s infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            text-shadow: 3px 3px 0 #45a29e, -2px -2px 0 #66fcf1;
+            animation: textGlitch 5s infinite;
+            color: #c5c6c7;
+        }
+
+        @keyframes textGlitch {
+            0%, 90%, 100% { transform: translate(0); }
+            92% { transform: translate(-2px, 1px); }
+            94% { transform: translate(1px, -1px); }
+            96% { transform: translate(-1px, -1px); }
+        }
+
+        .tagline {
+            font-size: 0.7rem;
+            color: #66fcf1;
+            margin-top: 1rem;
+        }
+
+        /* Navigation */
+        nav {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            padding: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: 2px solid #66fcf1;
+            color: #66fcf1;
+            padding: 1rem 2rem;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            text-transform: uppercase;
+        }
+
+        .nav-btn:hover {
+            background: #66fcf1;
+            color: #1a1a2e;
+            box-shadow: 0 0 20px #66fcf1;
+            transform: translateY(-2px);
+        }
+
+        .nav-btn.active {
+            background: #45a29e;
+            border-color: #45a29e;
+            color: #0f3460;
+            box-shadow: 0 0 20px #45a29e;
+        }
+
+        /* Sections */
+        section {
+            display: none;
+            padding: 2rem 0;
+            animation: fadeIn 0.5s;
+        }
+
+        section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            color: #66fcf1;
+            text-align: center;
+            text-shadow: 2px 2px 0 #45a29e;
+        }
+
+        /* About Section */
+        .about-content {
+            background: rgba(69, 162, 158, 0.1);
+            border: 2px solid #45a29e;
+            padding: 2rem;
+            font-size: 0.7rem;
+            line-height: 2;
+            box-shadow: 0 0 20px rgba(69, 162, 158, 0.2);
+        }
+
+        /* Skills Section */
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .skill-item {
+            background: rgba(69, 162, 158, 0.1);
+            border: 2px solid #45a29e;
+            padding: 1.5rem;
+            transition: all 0.3s;
+            cursor: default;
+            position: relative;
+            overflow: hidden;
+            min-height: auto;
+        }
+
+        .skill-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 30px rgba(102, 252, 241, 0.4);
+            border-color: #66fcf1;
+        }
+
+        .skill-item.expanded {
+            min-height: auto;
+            background: rgba(69, 162, 158, 0.15);
+        }
+
+        .skill-name {
+            font-size: 0.8rem;
+            margin-bottom: 1rem;
+            color: #66fcf1;
+        }
+
+        .skill-bar {
+            width: 100%;
+            height: 20px;
+            background: rgba(15, 52, 96, 0.5);
+            border: 2px solid #45a29e;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .skill-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #45a29e, #66fcf1);
+            transition: width 1s ease;
+            box-shadow: 0 0 10px #66fcf1;
+        }
+
+        .skill-percent {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.6rem;
+            color: #2e1a1a;
+            font-weight: bold;
+        }
+
+        .skill-description {
+            font-size: 0.55rem;
+            line-height: 1.6;
+            color: #c5c6c7;
+            margin-top: 1rem;
+            opacity: 1;
+            max-height: none;
+            overflow: visible;
+            transition: all 0.4s ease;
+        }
+
+        .skill-item:hover .skill-description,
+        .skill-item.expanded .skill-description {
+            opacity: 1;
+            max-height: none;
+        }
+
+        .skill-icon {
+            font-size: 0.7rem;
+            color: #45a29e;
+            margin-right: 0.3rem;
+        }
+
+        /* Education Section */
+        .education-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .education-item {
+            background: rgba(102, 252, 241, 0.05);
+            border: 2px solid #45a29e;
+            border-left: 5px solid #66fcf1;
+            padding: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .education-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 0 20px rgba(102, 252, 241, 0.3);
+            border-left-color: #45a29e;
+        }
+
+        .education-degree {
+            font-size: 0.8rem;
+            color: #66fcf1;
+            margin-bottom: 0.5rem;
+        }
+
+        .education-institution {
+            font-size: 0.65rem;
+            color: #c5c6c7;
+            margin-bottom: 0.5rem;
+        }
+
+        .education-year {
+            font-size: 0.55rem;
+            color: #45a29e;
+            margin-bottom: 0.8rem;
+        }
+
+        .education-description {
+            font-size: 0.55rem;
+            line-height: 1.6;
+            color: #c5c6c7;
+        }
+
+        /* Projects Section */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .project-card {
+            background: rgba(102, 252, 241, 0.05);
+            border: 3px solid #45a29e;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .project-card::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(102, 252, 241, 0.1), transparent);
+            transform: rotate(45deg);
+            transition: all 0.5s;
+        }
+
+        .project-card:hover::before {
+            left: 100%;
+        }
+
+        .project-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 10px 40px rgba(102, 252, 241, 0.3);
+            border-color: #66fcf1;
+        }
+
+        .project-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .project-title {
+            font-size: 0.9rem;
+            color: #66fcf1;
+            margin-bottom: 1rem;
+        }
+
+        .project-tech {
+            font-size: 0.5rem;
+            color: #45a29e;
+            margin-bottom: 1rem;
+        }
+
+        .project-desc {
+            font-size: 0.6rem;
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+
+        .project-link {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: #45a29e;
+            color: #0f3460;
+            text-decoration: none;
+            font-size: 0.6rem;
+            transition: all 0.3s;
+            border: 2px solid #45a29e;
+        }
+
+        .project-link:hover {
+            background: transparent;
+            color: #66fcf1;
+            border-color: #66fcf1;
+            box-shadow: 0 0 15px #66fcf1;
+        }
+
+        /* Contact Section */
+        .contact-content {
+            text-align: center;
+            font-size: 0.8rem;
+            line-height: 2.5;
+        }
+
+        .contact-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .contact-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            background: transparent;
+            border: 2px solid #45a29e;
+            color: #66fcf1;
+            text-decoration: none;
+            font-size: 0.7rem;
+            transition: all 0.3s;
+        }
+
+        .contact-link:hover {
+            background: #45a29e;
+            color: #0f3460;
+            box-shadow: 0 0 20px #45a29e;
+            transform: scale(1.1);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            border-top: 2px solid #45a29e;
+            margin-top: 3rem;
+            font-size: 0.6rem;
+            color: #66fcf1;
+        }
+
+        /* Pixel Corners */
+        .pixel-corner {
+            position: relative;
+        }
+
+        .pixel-corner::before,
+        .pixel-corner::after {
+            content: "■";
+            position: absolute;
+            font-size: 1rem;
+            color: #45a29e;
+        }
+
+        .pixel-corner::before {
+            top: -10px;
+            left: -10px;
+        }
+
+        .pixel-corner::after {
+            bottom: -10px;
+            right: -10px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 { font-size: 1.2rem; }
+            .tagline { font-size: 0.5rem; }
+            .nav-btn { padding: 0.8rem 1.5rem; font-size: 0.6rem; }
+            .section-title { font-size: 1rem; }
+            .about-content { font-size: 0.6rem; padding: 1.5rem; }
+        }
+    </style>
+</head>
+<body class="crt-effect">
+    <!-- Boot Screen -->
+    <div id="bootScreen">
+        <div class="boot-logo">▲</div>
+        <div class="boot-text">CARGANDO PORTFOLIO.EXE</div>
+        <div class="loading-bar">
+            <div class="loading-fill"></div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="mainContent" style="display: none;">
+        <header>
+            <h1>&lt; Adanlevis Perdomo /&gt;</h1>
+            <p class="tagline">FULL STACK DEVELOPER | GAME DEVELOPER</p>
+        </header>
+
+        <div class="container">
+            <nav>
+                <button class="nav-btn active" onclick="showSection('about')">[ ACERCA DE MI ]</button>
+                <button class="nav-btn" onclick="showSection('skills')">[ HABILIDADES ]</button>
+                <button class="nav-btn" onclick="showSection('projects')">[ PROYECTOS ]</button>
+                <button class="nav-btn" onclick="showSection('contact')">[ CONTACTO ]</button>
+            </nav>
+
+            <!-- About Section -->
+            <section id="about" class="active">
+                <h2 class="section-title">ACERCA DE MI</h2>
+                <div class="about-content pixel-corner">
+                    <p>&gt; Hola! Mi nombre es Adanlevis Perdomo desarrollador Software y creador de videojuegos. Especializado en el desarrollo de aplicaciones web únicas.</p>
+                    <br>
+                    <p>&gt; Comencé en el mundo laboral en la industria TI desde los 18 años, actualmente desempeño mi trabajo como Freelance.</p>
+                    <br>
+                    <p>&gt; Mi enfoque es escribir código limpio, mantenible y escalable, siempre buscando aprender nuevas tecnologías y mejorar mis habilidades.</p>
+
+                </div>
+
+                <h2 class="section-title" style="margin-top: 3rem;">EDUCACIÓN</h2>
+                <div class="education-grid">
+                    <div class="education-item">
+                        <div class="education-degree">► TÉCNICO EN DESARROLLO DE SOFTWARE</div>
+                        <div class="education-institution">Universidad Pontificia Bolivariana</div>
+                        <div class="education-year">2023-2024</div>
+                        <div class="education-description">
+                            Formación integral en desarrollo de software, algoritmos, estructuras de datos, bases de datos y arquitectura de sistemas. Proyectos destacados en desarrollo web full stack.
+                        </div>
+                    </div>
+                    <div class="education-item">
+                        <div class="education-degree">► INGENIERÍA EN SOFTWARE</div>
+                        <div class="education-institution">Tecnológico de Antioquia</div>
+                        <div class="education-year">2025 - EN CURSO</div>
+                        <div class="education-description">
+                            Manejo de base de datos, metodologías ágiles, programación avanzada, arquitectura de software, ciberseguridad y gestión de proyectos tecnológicos.
+                        </div>
+                    </div>
+                    <div class="education-item">
+                        <div class="education-degree">► BOOTCAMP FULL STACK</div>
+                        <div class="education-institution">Platzi / Udemy</div>
+                        <div class="education-year">2022</div>
+                        <div class="education-description">
+                            Especialización intensiva en tecnologías modernas: React, Node.js, MongoDB, Express, desarrollo de proyectos prácticos y metodologías ágiles.
+                        </div>
+                    </div>
+                    <div class="education-item">
+                        <div class="education-degree">► ICP DEVELOPER AZLE</div>
+                        <div class="education-institution">ICP Latam Hub</div>
+                        <div class="education-year">2023</div>
+                        <div class="education-description">
+                            ICP Developer Azle - capacitación de desarrolladores en el protocolo de Internet Computer utilizando el lenguaje TypeScript.
+                        </div>
+                    </div>
+                        <div class="education-item">
+                        <div class="education-degree">► FUNDAMENTOS DE PYTHON</div>
+                        <div class="education-institution">Tecnologico de Antioquia</div>
+                        <div class="education-year">2025</div>
+                        <div class="education-description">
+                            Cisco Networking Academy. - capacitación de desarrolladores en el protocolo de Internet Computer utilizando el lenguaje TypeScript.
+                        </div>
+                    </div>
+                    <div class="education-item">
+                        <div class="education-degree">► CURSOS COMPLEMENTARIOS</div>
+                        <div class="education-institution">Diversos Platforms</div>
+                        <div class="education-year">2020 - 2024</div>
+                        <div class="education-description">
+                            Formación continua en tecnologías emergentes, desarrollo de videojuegos en Unity, mejores prácticas de desarrollo, testing, DevOps, contenedores, microservicios y metodologías ágiles.
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Skills Section -->
+            <section id="skills">
+                <h2 class="section-title">HABILIDADES TÉCNICAS</h2>
+                <div class="skills-grid">
+                    <div class="skill-item">
+                        <div class="skill-name"><span class="skill-icon">▶</span>JAVASCRIPT</div>
+                        <div class="skill-bar">
+                            <div class="skill-fill" style="width: 0%;" data-width="95%">
+                                <span class="skill-percent">95%</span>
+                            </div>
+                        </div>
+                        <div class="skill-description">
+                            Programación asíncrona, manejo del DOM y desarrollo de aplicaciones web modernas. Amplia experiencia en frameworks y librerías del ecosistema JavaScript.
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <div class="skill-name"><span class="skill-icon">▶</span>REACT</div>
+                        <div class="skill-bar">
+                            <div class="skill-fill" style="width: 0%;" data-width="90%">
+                                <span class="skill-percent">90%</span>
+                            </div>
+                        </div>
+                        <div class="skill-description">
+                            Desarrollo de SPAs con hooks, context API, Next.js. Optimización de rendimiento, gestión de estado global y componentización eficiente.
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <div class="skill-name"><span class="skill-icon">▶</span>NODE.JS</div>
+                        <div class="skill-bar">
+                            <div class="skill-fill" style="width: 0%;" data-width="85%">
+                                <span class="skill-percent">85%</span>
+                            </div>
+                        </div>
+                        <div class="skill-description">
+                            Construcción de APIs RESTful, autenticación JWT, manejo de bases de datos y arquitectura de microservicios. Express, NestJS y desarrollo backend escalable.
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <div class="skill-name"><span class="skill-icon">▶</span>CSS/TAILWIND</div>
+                        <div class="skill-bar">
+                            <div class="skill-fill" style="width: 0%;" data-width="88%">
+                                <span class="skill-percent">88%</span>
+                            </div>
+                        </div>
+                        <div class="skill-description">
+                            Diseño responsive, animaciones CSS, Flexbox, Grid y utility-first con Tailwind. Creación de interfaces modernas, accesibles y optimizadas para múltiples dispositivos.
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <div class="skill-name"><span class="skill-icon">▶</span>MONGODB</div>
+                        <div class="skill-bar">
+                            <div class="skill-fill" style="width: 0%;" data-width="80%">
+                                <span class="skill-percent">80%</span>
+                            </div>
+                        </div>
+                        <div class="skill-description">
+                            Diseño de esquemas NoSQL, agregaciones complejas, indexación y optimización de queries. Mongoose ODM e integración con Node.js para aplicaciones escalables.
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <div class="skill-name"><span class="skill-icon">▶</span>GIT</div>
+                        <div class="skill-bar">
+                            <div class="skill-fill" style="width: 0%;" data-width="92%">
+                                <span class="skill-percent">92%</span>
+                            </div>
+                        </div>
+                        <div class="skill-description">
+                            Control de versiones, branching strategies, resolución de conflictos y workflows colaborativos. GitHub Actions, CI/CD y gestión de repositorios en equipo.
+                        </div>
+                    </div>
+
+                        <div class="skill-item">
+                        <div class="skill-name"><span class="skill-icon">▶</span>Unity</div>
+                        <div class="skill-bar">
+                            <div class="skill-fill" style="width: 0%;" data-width="93%">
+                                <span class="skill-percent">93%</span>
+                            </div>
+                        </div>
+                        <div class="skill-description">
+                            Diseño y desarrollo de vidojuegos en 3D, tanto en 3D como 2D, especializado en videojuegos en 3D.
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Projects Section -->
+            <section id="projects">
+                <h2 class="section-title">PROYECTOS</h2>
+                <div class="projects-grid">
+                    <div class="project-card pixel-corner">
+                        <span class="project-icon">👨‍🔧</span>
+                        <h3 class="project-title">PÁGINA WEB</h3>
+                        <p class="project-tech">React • Taiwald</p>
+                        <p class="project-desc">Plataforma de presentación para empresa de electricidad con funcionalidades como cotización, redirección a contacto. +50 visitas en menos de 1 semana, CEO optimizado y posicionamiento en la web.</p>
+                        <a href="https://servicios-electricos-perdomo.vercel.app/" target="_blank" class="project-link">VER PROYECTO →</a>
+                    </div>
+                    <div class="project-card pixel-corner">
+                        <span class="project-icon">🎮</span>
+                        <h3 class="project-title">Noche de mitos</h3>
+                        <p class="project-tech">Unity</p>
+                        <p class="project-desc">Videojuego Bullet Heaven desarrollado en una JAM de 7 dias. Utilizando la tecnología de Unity para su desarrollo</p>
+                        <a href="https://ziaxlh.itch.io/noche-de-mitos" target="_blank" class="project-link">VER PROYECTO →</a>
+                    </div>
+                    <div class="project-card pixel-corner">
+                        <span class="project-icon">🛒</span>
+                        <h3 class="project-title">Geeket</h3>
+                        <p class="project-tech">React • Node JS • MongoDB</p>
+                        <p class="project-desc">Proyecto personal plataforma completa de comercio electrónico con carrito de compras sobre ropa y accesorios geeks.</p>
+                        <a href="#" class="project-link">En proceso</a>
+                    </div>
+                </div>
+                                    <h2 class="section-title" style="margin-top: 3rem;">EXPERIENCIA DE TRABAJO</h2>
+                    <div class="education-grid">
+                        <div class="education-item">
+                            <div class="education-degree">► DESARROLLADOR FULL STACK</div>
+                            <div class="education-institution">Prosecto - Prospectiva Sectorial y Datos Aplicados · Internship</div>
+                            <div class="education-year">2024-2025</div>
+                            <div class="education-description">
+                                Desarrollo de aplicaciones en analisis de datos, y aplicaciones webs como inventario para colegios, extracción de información en facturas electronicas con tecnología OCR.
+                            </div>
+                        </div>
+            </section>
+
+            <section id="contact">
+                <h2 class="section-title">CONTACTO</h2>
+                <div class="contact-content">
+                    <p>&gt; ¿INTERESADO EN TRABAJAR JUNTOS?</p>
+                    <p>&gt; CONECTEMOS Y HAGAMOS ALGO INCREÍBLE</p>
+
+                    <div class="contact-links">
+                        <a href="mailto:adamlevis06@gmail.com" class="contact-link">
+                            <i class="fa-solid fa-envelope"></i> EMAIL
+                        </a>
+
+                        <a href="https://github.com/Yamikzex" target="_blank" class="contact-link">
+                            <i class="fa-brands fa-github"></i> GITHUB
+                        </a>
+
+                        <a href="https://www.linkedin.com/in/adanlevis-perdomo-45645818a/" target="_blank" class="contact-link">
+                            <i class="fa-brands fa-linkedin"></i> LINKEDIN
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+        <footer>
+            <p>© 2025 Adanlevis Perdomo</p>
+            <p>1.0.0</p>
+        </footer>
+    </div>
+
+    <script>
+        // Boot Screen Animation
+        setTimeout(() => {
+            document.getElementById('bootScreen').classList.add('hidden');
+            document.getElementById('mainContent').style.display = 'block';
+            animateSkills();
+        }, 2500);
+
+        // Navigation
+        function showSection(sectionId) {
+            // Remove active from all sections and buttons
+            document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            
+            // Add active to selected section and button
+            document.getElementById(sectionId).classList.add('active');
+            event.target.classList.add('active');
+
+            // Animate skills when skills section is shown
+            if (sectionId === 'skills') {
+                animateSkills();
+            }
+        }
+
+        // Animate Skill Bars
+        function animateSkills() {
+            const skillFills = document.querySelectorAll('.skill-fill');
+            skillFills.forEach(fill => {
+                const width = fill.getAttribute('data-width');
+                setTimeout(() => {
+                    fill.style.width = width;
+                }, 100);
+            });
+        }
+
+        // Random Glitch Effect
+        setInterval(() => {
+            if (Math.random() > 0.95) {
+                document.body.style.transform = `translate(${Math.random() * 4 - 2}px, ${Math.random() * 4 - 2}px)`;
+                setTimeout(() => {
+                    document.body.style.transform = 'translate(0, 0)';
+                }, 50);
+            }
+        }, 2000);
+
+        // Konami Code Easter Egg
+        let konamiCode = [];
+        const konamiSequence = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+        
+        document.addEventListener('keydown', (e) => {
+            konamiCode.push(e.key);
+            if (konamiCode.length > konamiSequence.length) {
+                konamiCode.shift();
+            }
+            if (konamiCode.join(',') === konamiSequence.join(',')) {
+                document.body.style.filter = 'hue-rotate(180deg)';
+                setTimeout(() => {
+                    document.body.style.filter = 'none';
+                }, 3000);
+                konamiCode = [];
+            }
+        });
+    </script>
+</body>
+</html>
